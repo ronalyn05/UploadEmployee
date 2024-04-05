@@ -44,6 +44,19 @@
 
      
     <div id="root"></div>
+
+    <script>
+      // Add JavaScript for sidebar toggle functionality
+      $(document).ready(function() {
+        $("#sidebarToggle, #sidebarToggleTop").on('click', function() {
+          $("body").toggleClass("sidebar-toggled");
+          $(".sidebar").toggleClass("toggled");
+          if ($(".sidebar").hasClass("toggled")) {
+            $('.sidebar .collapse').collapse('hide');
+          };
+        });
+      });
+    </script>
   
   </body>
     

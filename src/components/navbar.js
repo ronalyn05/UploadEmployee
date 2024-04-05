@@ -45,45 +45,18 @@ import { Link, useLocation } from 'react-router-dom';
                 </Link>
                  {/* </a> */}
              </li>
-             {/* Nav Item - Self Service Movement */}
+             {/* Nav Item - Reports*/}
              <li className="nav-item">
-             <Link className="nav-link" to={{ pathname: "/movement"}} state={data} >
-                <i className="fas fa-fw fa-handshake"></i>
-                <span>Self Service Movement</span>
+             <Link className="nav-link" to={{ pathname: "/reports"}} state={data} >
+                <i className="fas fa-fw fa-chart-bar"></i>
+                <span>Report</span>
               </Link>
              </li>
-             {/* Nav Item - Exit Clearance Processing */}
-             <li className="nav-item">
-             <Link className="nav-link" to={{ pathname: "/exitclearance"}} state={data}>
-                <i className="fas fa-fw fa-sign-out-alt"></i>
-                <span>Exit Clearance Processing</span>
-            </Link>
-             </li>
-             {/* Nav Item - HR/Admin Module */}
-             <li className="nav-item">
-             <Link className="nav-link" to={{ pathname: "/adminModule"}} state={data} >
-                <i className="fas fa-fw fa-user-tie"></i>
-                <span>HR/Admin Module</span>
-              </Link>
-             </li>
-             <Link 
-            className="nav-link" 
-            to={{ 
-                pathname: "/updateEmployeeInfo", 
-                state: data // Pass your data object here
-            }}
-            >
-            {/* Your Link content */}
-            </Link>
+            
              {/* Sidebar Toggler (Sidebar) */}
              <div className="text-center d-none d-md-inline">
           <button className="rounded-circle border-0" id="sidebarToggle"></button>
         </div>
-             {/* <div id="sidebar" className="text-center d-none d-md-inline">
-                 <button id="sidebarToggle" className="rounded-circle border-0">
-                     <i id="sidebarIcon" className="fas fa-chevron-left"></i>
-                 </button>
-             </div> */}
          </ul>
      );
  }
