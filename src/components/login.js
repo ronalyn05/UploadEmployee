@@ -74,9 +74,9 @@ function LoginPage() {
                                     <button type="submit" className="btn btn-primary btn-user btn-block">Login</button>
                                 </form>
                                 <hr />
-                                <div className="text-center">
+                                {/* <div className="text-center">
                                     <Link className="small" to="/forgotpassword">Forgot Password?</Link>
-                                </div>
+                                </div> */}
                                 <div className="text-center">
                                     <Link className="small" to="/register">No account yet? Create an Account!</Link>
                                 </div>

@@ -1,143 +1,173 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import '../App.css';
 import * as XLSX from 'xlsx';
 import Navbar from './navbar';
 import TopNavbar from './topnavbar'; 
 import Footer from './footer';
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { variables } from '../variables';
 // import UpdateEmployeeInfo from './components/update';
 
 const NewHireUpload = () => {
 
-  const [file, setFile] = useState('');
+  const [file, setFile] = useState(null);
   const [excelData, setExcelData] = useState([]);
-  const [employees, setEmployees] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [activeTab, setActiveTab] = useState('upload'); // State to manage active tab
 
-  const navigate = useNavigate();
-  
-  //  // Get user data from location state
-  //  const location = useLocation();
-  //  const data = location.state;
-
-  const handleUpdate = (employeeId) => {
-    // Redirect to the update page with employee ID as a parameter
-    navigate(`/update/${employeeId}`);
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
   };
 
-  // Inside handleFileChange function
-  const handleFileChange = async (e) => {
-  const selectedFile = e.target.files[0];
-  setFile(selectedFile);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const data = await readFile(selectedFile);
-    const parsedData = parseExcelData(data);
-    setExcelData(parsedData);
-  } catch (error) {
-    console.error('Error occurred:', error);
-    // Reset excelData state in case of error
-    setExcelData([]);
-    alert("Error occurred while reading the file. Please try again.");
-  }
-}
- // Inside handleSubmit function
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!file) {
-    console.log("No File Selected");
-    alert("No File Selected");
-    return;
-  }
-
-  const fileType = file.type;
-  if (fileType !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-    console.log("Please select an Excel file.");
-    alert("Please select an Excel file.");
-    return;
-  }
-
-  try {
-    await sendDataToServer(excelData);
-    console.log('Uploading Data: Successful');
-
-    // Reset file state to clear the input field
-    setFile('');
-
-    // Clear the list
-    setExcelData([]);
-    
-    alert("Data Upload Successful.");
-  } catch (error) {
-    console.error('Error occurred while sending data:', error);
-    alert("Error occurred while uploading data. Please try again later.");
-  }
-}
-
-const readFile = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(new Uint8Array(e.target.result));
-    reader.onerror = (error) => reject(error);
-    reader.readAsArrayBuffer(file);
-  });
-}
-
-const parseExcelData = (data) => {
-  const workbook = XLSX.read(data, { type: 'array' });
-  const sheetName = workbook.SheetNames[0]; // Assuming there's only one sheet
-  const sheet = workbook.Sheets[sheetName];
-  return XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1); // Exclude the first row (header)
-}
-
-const sendDataToServer = async (data) => {
-  try {
-    const response = await fetch(variables.API_URL + 'Employee/uploadData', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ excelData: data }), // Send the Excel data as JSON
-    });
-    if (!response.ok) {
-      throw new Error('Failed to send data');
+    if (!file) {
+      alert('No File Selected');
+      return;
     }
-  } catch (error) {
-    throw error;
-  }
-}
 
-//retrieve the new hire employee data 
-useEffect(() => {
-  async function fetchData() {
+    const fileType = file.type;
+    if (
+      fileType !==
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ) {
+      alert('Please select an Excel file.');
+      return;
+    }
+
     try {
-      // Make a GET request to fetch new hire employees from the server
-      const response = await fetch(variables.API_URL + 'Employee');
-      
-      // Check if the response is successful
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-
-      // Extract the data from the response
-      const data = await response.json();
-      
-      // Set the retrieved data in your component state
-      setEmployees(data);
+      const data = await readFile(file);
+      const parsedData = parseExcelData(data);
+      setExcelData(parsedData);
+      setShowPreview(true); // Show the preview once data is parsed
+      setActiveTab('preview'); // Switch to preview tab
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error occurred while reading the file:', error);
+      setExcelData([]);
+      setShowPreview(false);
+      setActiveTab('upload'); // Switch back to upload tab on error
+      alert('Error occurred while reading the file. Please try again.');
     }
-  }
+  };
 
-  // Call the fetchData function when the component mounts
-  fetchData();
-}, []); // Empty dependency array to run only once when the component mounts
+  const handleSaveData = async () => {
+    try {
+      // Send data to server for database save
+      await sendDataToServer(excelData);
+      alert('Data saved to database successfully!');
+    } catch (error) {
+      console.error('Error occurred while saving data:', error);
+      alert('Error occurred while saving data. Please try again later.');
+    }
+  };
+
+  // const handleNavigateBack = () => {
+  //   setShowPreview(false); // Hide the preview
+  //   setActiveTab('upload'); // Switch back to upload tab
+  // };
+
+  const readFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(new Uint8Array(e.target.result));
+      reader.onerror = (error) => reject(error);
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const parseExcelData = (data) => {
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const headers = rows[0];
+    const parsedData = rows.slice(1).map((row) => {
+      const rowData = {};
+      headers.forEach((header, index) => {
+        const cellValue = row[index];
+        rowData[header] = parseCellValue(cellValue);
+      });
+      return rowData;
+    });
+
+    return parsedData;
+  };
+
+  const parseCellValue = (value) => {
+    if (typeof value === 'string') {
+      return value.trim(); // Trim whitespace for string values
+    }
+    return value; // Return value as is for other types
+  };
+  const convertExcelDateToDate = (excelDateValue) => {
+    if (!excelDateValue) return null;
+  
+    const excelDateNumber = parseFloat(excelDateValue);
+  
+    if (isNaN(excelDateNumber)) return null;
+  
+    // Convert Excel date number to JavaScript date
+    const excelDateInMS = (excelDateNumber - 25569) * 86400 * 1000;
+    const dateObj = new Date(excelDateInMS);
+  
+    // Format date to desired string (e.g., "MM/DD/YYYY")
+    const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj.getFullYear()}`;
+    
+    return formattedDate;
+  };
+  
+  const sendDataToServer = async (data) => {
+    try {
+      const response = await fetch(variables.API_URL + 'UploadEmp/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data), // Send data directly without wrapping in { excelData: ... }
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to send data: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error occurred while sending data:', error);
+      throw error;
+    }
+  };
+  // const handleSaveData = async () => {
+  //   try {
+  //     const response = await fetch(variables.API_URL + 'UploadEmp/SaveData', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(excelData),
+  //     });
+  
+  //     if (response.ok) {
+  //       alert('Data saved successfully!');
+  //     } else {
+  //       alert('Failed to save data.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error saving data:', error);
+  //     alert('Error occurred while saving data.');
+  //   }
+  // };
+  
 
   
   return (
     
-    <body id="page-top">      
+          <div>
       <div id="wrapper">
          {/* Sidebar */}
          <Navbar />
@@ -153,24 +183,49 @@ useEffect(() => {
         <div className="col-xl-12 col-lg-12">
           <div className="card shadow mb-4">
             <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <ul className="nav nav-tabs">
-                <li className="nav-item">
-                  <a className="nav-link active" id="upload-tab" data-toggle="tab" href="#uploadForm" role="tab" aria-controls="uploadForm" aria-selected="false">New Hire</a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" id="reports-tab" data-toggle="tab" href="#newHireReports" role="tab" aria-controls="uploadForm" aria-selected="false">Reports</a>
-                </li>
-              </ul>
+                                    <ul className="nav nav-tabs">
+                        <li className="nav-item">
+                          <a
+                            className={`nav-link ${activeTab === 'upload' ? 'active' : ''}`}
+                            id="upload-tab"
+                            data-toggle="tab"
+                            href="#uploadForm"
+                            role="tab"
+                            aria-controls="uploadForm"
+                            aria-selected={activeTab === 'upload'}
+                          >
+                            Upload
+                          </a>
+                        </li>
+                        <li className="nav-item">
+                          <a
+                            className={`nav-link ${activeTab === 'preview' ? 'active' : ''}`}
+                            id="reports-tab"
+                            data-toggle="tab"
+                            href="#newHireReports"
+                            role="tab"
+                            aria-controls="newHireReports"
+                            aria-selected={activeTab === 'preview'}
+                          >
+                            Preview
+                          </a>
+                        </li>
+                      </ul>
             </div>
             <div className="card-body">
               <div className="tab-content">
-                <div className="tab-pane fade show active" id="uploadForm" role="tabpanel" aria-labelledby="upload-tab">
+                <div
+                          className={`tab-pane fade ${activeTab === 'upload' ? 'show active' : ''}`}
+                          id="uploadForm"
+                          role="tabpanel"
+                          aria-labelledby="upload-tab"
+                        >
                   <div className="card-body">
                     <div className="d-flex justify-content-center">
                       <form className="user" encType="multipart/form-data" >
                         <div className="form-group">
                           <input type="file" className="form-control-file" aria-describedby="fileHelp" onChange={handleFileChange} />
-                          <small id="fileHelp" className="form-text text-muted">Choose a file to upload new hire.</small>
+                          <small id="fileHelp" className="form-text text-muted">Choose a file to upload.</small>
                         </div>
                         <div className="text-center">
                           <button type="submit" onClick={handleSubmit} className="btn btn-primary btn-user btn-block col-md-6">Upload File</button>
@@ -179,75 +234,57 @@ useEffect(() => {
                     </div>
                   </div>
                 </div>
-                <div className="tab-pane fade" id="newHireReports" role="tabpanel" aria-labelledby="reports-tab">
+                <div
+                          className={`tab-pane fade ${activeTab === 'preview' ? 'show active' : ''}`}
+                          id="newHireReports"
+                          role="tabpanel"
+                          aria-labelledby="reports-tab"
+                        >
                   <div className="card-body">
                     <div className="table-responsive">
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th scope="col">ACTION</th>
-                            <th scope="col">EMPLOYEE ID</th>
-                            <th scope="col">NAME</th>
-                            <th scope="col">FIRST NAME</th>
-                            <th scope="col">MIDDLE NAME</th>
-                            <th scope="col">LAST NAME</th>
-                            <th scope="col">MAIDEN NAME</th>
-                            <th scope="col">BIRTHDATE</th>
-                            <th scope="col">AGE</th>
-                            <th scope="col">BIRTH MONTH</th>
-                            <th scope="col">AGE BRACKET</th>
-                            <th scope="col">GENDER</th>
-                            <th scope="col">MARITAL STATUS</th>
-                            <th scope="col">SSS</th>
-                            <th scope="col">PHIC</th>
-                            <th scope="col">HDMF</th>
-                            <th scope="col">TIN</th>
-                            {/* <th scope="col">ADDRESS</th> */}
-                            <th scope="col">HRANID</th>
-                            <th scope="col">CONTACT NUMBER</th>
-                            <th scope="col">EMAIL ADDRESS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {employees.length > 0 ? (
-                            employees.map(employee => (
-                              <tr key={employee.EmpID}>
-                                <td>
-                                <button
-                                    className="update-button" 
-                                    onClick={() => handleUpdate(employee.EmpID)} // Call handleUpdate with employee ID
-                                  >
-                                    <i className="fas fa-pencil-alt"></i> Update
-                                  </button>
-                              </td>
-                                <td>{employee.EmpID}</td>
-                                <td>{employee.Name}</td>
-                                <td>{employee.FirstName}</td>
-                                <td>{employee.MiddleName}</td>
-                                <td>{employee.LastName}</td>
-                                <td>{employee.MaidenName}</td>
-                                <td>{employee.Birthdate}</td>
-                                <td>{employee.Age}</td>
-                                <td>{employee.BirthMonth}</td>
-                                <td>{employee.AgeBracket}</td>
-                                <td>{employee.Gender}</td>
-                                <td>{employee.MaritalStatus}</td>
-                                <td>{employee.SSS}</td>
-                                <td>{employee.PHIC}</td>
-                                <td>{employee.HDMF}</td>
-                                <td>{employee.TIN}</td>
-                                <td>{employee.HRANID}</td>
-                                <td>{employee.ContactNumber}</td>
-                                <td>{employee.EmailAddress}</td> 
-                              </tr>
-                            ))
-                          ) : (
+                    {showPreview && excelData.length > 0 && (
+                      <div>
+                        <h5 className="mb-3 font-weight-bold">Preview of the Uploaded Data</h5>
+                        <table className="table">
+                          <thead>
                             <tr>
-                              <td colSpan="20">No data available</td>
+                              {Object.keys(excelData[0]).map((header) => (
+                                <th key={header}>{header}</th>
+                              ))}
                             </tr>
-                          )}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {excelData.map((row, index) => (
+                              <tr key={index}>
+                                <td>{row['NAME'] || null}</td>
+                                <td>{row['FIRSTNAME'] || null}</td>
+                                <td>{row['MIDDLENAME'] || null}</td>
+                                <td>{row['LASTNAME'] || null}</td>
+                                <td>{row['MAIDEN NAME'] || null}</td>
+                                <td>{convertExcelDateToDate(row['BIRTHDATE']) || null}</td>
+                                <td>{row['AGE'] || null}</td>
+                                <td>{row['BIRTH MONTH'] || null}</td>
+                                <td>{row['AGE BRACKET'] || null}</td>
+                                <td>{row['GENDER'] || null}</td>
+                                <td>{row['MARITAL STATUS'] || null}</td>
+                                <td>{row['SSS'] || null}</td>
+                                <td>{row['PHIC'] || null}</td>
+                                <td>{row['HDMF'] || null}</td>
+                                <td>{row['TIN'] || null}</td>
+                                <td>{row['HRANID'] || null}</td>
+                                <td>{row['CONTACT NUMBER'] || null}</td>
+                                <td>{row['EMAIL ADDRESS'] || null}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <div className="text-center mt-3">
+                          <button className="btn btn-success mr-2" onClick={handleSaveData}>Save Data</button>
+                          {/* <button className="btn btn-primary" onClick={handleNavigateBack}>Back to Upload</button> */}
+                        </div>
+                      </div>
+                    )}
+                    <br />
                     </div>
                   </div>
                 </div>
@@ -266,7 +303,7 @@ useEffect(() => {
         {/* End of Content Wrapper */}
       </div>
       {/* End of Page Wrapper */}
-    </body>
+      </div>
   );
 }
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import { variables } from '../variables';
 
 function Register() {
+    const navigate = useNavigate(); // Initialize useNavigate
+
     const [formData, setFormData] = useState({
         UserName: '',
         LastName: '',
@@ -40,20 +42,12 @@ function Register() {
             if (!response.ok) {
                 throw new Error('Failed to register user');
             }
-    
-            const data = await response.json();
-            console.log(data); // Log the response from the server
-            // Reset form fields after successful registration
-            setFormData({
-                UserName: '',
-                LastName: '',
-                FirstName: '',
-                MiddleName: '',
-                Email: '',
-                Password: '',
-                ConfirmPassword: ''
-            });
-            setErrorMessage(null); // Clear any previous error message
+
+            // Show success message
+            window.alert('Account registered successfully!');
+
+            // Redirect to login page
+            navigate('/');
         } catch (error) {
             console.error('Error registering user:', error);
             setErrorMessage('Failed to register user. Please try again later.');
@@ -115,9 +109,9 @@ function Register() {
                                     </div>
                                 )}
                                 <hr />
-                                <div className="text-center">
+                                {/* <div className="text-center">
                                     <Link className="small" to="/forgotpassword">Forgot Password?</Link>
-                                </div>
+                                </div> */}
                                 <div className="text-center">
                                     <Link className="small" to="/">Already have an Account? Login!</Link>
                                 </div>

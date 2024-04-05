@@ -13,11 +13,26 @@ function Dashboard() {
     const pieChartRef = useRef(null);
 
     const [numberOfEmployees, setNumberOfEmployees] = useState(0);
+    const [numberOfusers, setNumberOfusers] = useState(0);
+
+    useEffect(() => {
+        const fetchNumberOfUsers = async () => {
+            try {
+                const response = await axios.get(variables.API_URL + 'UserAccount'); // Assuming your API endpoint to fetch employees count is '/UserAccount'
+                const employeesCount = response.data.length; // Assuming your response data is an array of users account
+                setNumberOfusers(employeesCount);
+            } catch (error) {
+                console.error('Error fetching number of users:', error);
+            }
+        };
+
+        fetchNumberOfUsers();
+    }, []);
 
     useEffect(() => {
         const fetchNumberOfEmployees = async () => {
             try {
-                const response = await axios.get(variables.API_URL + 'Employee'); // Assuming your API endpoint to fetch employees count is '/Employee'
+                const response = await axios.get(variables.API_URL + 'UploadEmp'); // Assuming your API endpoint to fetch employees count is '/Employee'
                 const employeesCount = response.data.length; // Assuming your response data is an array of employees
                 setNumberOfEmployees(employeesCount);
             } catch (error) {
@@ -94,7 +109,7 @@ function Dashboard() {
                      {/* page content begin here */}
         <div className="container-fluid">
             {/* Page content begins here */}
-            <div className="row">
+            <div className="row justify-content-center">
                 <div className="col-xl-3 col-md-6 mb-4">
                     {/* Earnings (Monthly) Card  */}
                     <div className="card border-left-primary shadow h-100 py-2">
@@ -102,9 +117,10 @@ function Dashboard() {
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Numbers of new hire (Monthly)</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">50 </div>
-                                    <h6 className="font-weight-bold text-center text-danger"> static pa ni </h6>
+                                        Numbers of new hire employee</div>
+                                        <div className="h5 mb-0 font-weight-bold text-gray-800">{numberOfEmployees}</div>
+                                    {/* <div className="h5 mb-0 font-weight-bold text-gray-800">50 </div> */}
+                                    {/* <h6 className="font-weight-bold text-center text-danger"> static pa ni </h6> */}
                                 </div>
                                 <div className="col-auto">
                                     <i className="fas fa-calendar fa-2x text-gray-300"></i>
@@ -120,8 +136,8 @@ function Dashboard() {
                         <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                        Numbers of employees</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{numberOfEmployees}</div>
+                                        Numbers of Users</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{numberOfusers}</div>
                                 </div>
                                 <div className="col-auto">
                                 <i className="fas fa-users fa-2x text-gray-300"></i>
@@ -130,8 +146,9 @@ function Dashboard() {
                         </div>
                     </div>
                 </div>
-                <div className="col-xl-3 col-md-6 mb-4">
+                
                     {/* Self service movement card*/}
+                {/* <div className="col-xl-3 col-md-6 mb-4">
                     <div className="card border-left-info shadow h-100 py-2">
                         <div className="card-body">
                         <div className="row no-gutters align-items-center">
@@ -147,9 +164,10 @@ function Dashboard() {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="col-xl-3 col-md-6 mb-4">
+                </div> */}
+                
                     {/* Pending Exit Card */}
+                {/* <div className="col-xl-3 col-md-6 mb-4">
                     <div className="card border-left-warning shadow h-100 py-2">
                         <div className="card-body">
                         <div className="row no-gutters align-items-center">
@@ -166,7 +184,7 @@ function Dashboard() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
             <div className="row">
             <div className="col-xl-8 col-lg-7">
