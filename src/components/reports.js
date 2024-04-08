@@ -131,7 +131,7 @@ const Reports = () => {
                                                                             className="update-button btn btn-xs"
                                                                             onClick={() => handleUpdate(employee.EmpID)} // Call handleUpdate with employee ID
                                                                         >
-                                                                            <i className="fas fa-pencil-alt"></i> Update
+                                                                            <i className="fas fa-pencil-alt"></i> 
                                                                         </button>
                                                                     </td>
                                                                     <td>{employee.EmpID}</td>
@@ -181,5 +181,6 @@ const Reports = () => {
     );
 };
 
+export default Reports;
 export default Reports;
 

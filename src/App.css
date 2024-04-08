@@ -66,6 +66,61 @@
   text-align: center;
 }
 
+/* NewHireUpload css */
+/* App.css */
+
+.custom-modal .modal-dialog {
+  max-width: 90%; /* Set maximum width of the modal */
+  width: auto; /* Allow the modal width to adjust based on content */
+}
+
+.custom-modal .modal-content {
+  width: 200%; /* Allow the content width to adjust based on content */
+}
+
+.custom-modal .form-group {
+  margin-bottom: 15px; /* Add margin between form groups */
+}
+
+/* Define a class for auto-width input */
+.auto-width-input {
+  width: 100%;
+}
+/* Optional: Limit the maximum width to a specific value */
+@media (min-width: 576px) {
+  .auto-width-input {
+    max-width: 500px; /* Adjust the max-width as needed */
+  }
+}
+
+.table {
+  width: 100%;
+  table-layout: auto;
+}
+
+.table th,
+.table td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 300px; /* Adjust max-width as needed */
+}
+.auto-size-modal .modal-dialog {
+  max-width: 100%;
+}
+
+.auto-size-modal .modal-content {
+  width: auto;
+  padding: 20px; /* Optional: Adjust padding as needed */
+}
+
+.auto-size-modal .modal-body {
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.auto-size-modal .form-control {
+  width: 100%; /* Ensure input fields occupy full width of modal body */
+}
+
 /* Make table responsive and allow column adjustment */
 .table-responsive {
   overflow-x: auto;
