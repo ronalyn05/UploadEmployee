@@ -6,6 +6,7 @@ import Navbar from './navbar';
 import TopNavbar from './topnavbar';
 import Footer from './footer';
 import '../App.css'; // Import app.css
+import axios from 'axios';
 
 const NewHireUpload = () => {
   const [file, setFile] = useState(null);
@@ -93,6 +94,10 @@ const NewHireUpload = () => {
     if (header.toLowerCase().replace(/\s/g, '').includes('birthdate')) {
       return convertExcelDateToDate(value);
     }
+     // Convert age and contact number to strings
+  if (header.toLowerCase().replace(/\s/g, '') === 'age' || header.toLowerCase().replace(/\s/g, '') === 'contactnumber') {
+    return value.toString();
+  }
     return value;
   };
 
@@ -137,26 +142,55 @@ const NewHireUpload = () => {
     setEditModalShow(false);
   };
 
-  const handleSaveData = async () => {
-    try {
-      const response = await fetch(variables.API_URL + 'UploadEmp/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(excelData),
-      });
+const handleSaveData = async () => {
+  console.log('this');
+  console.log(excelData);
+  try {
+    // Make a POST request to the API endpoint for inserting previewed data
+    const response = await axios.post(variables.API_URL + 'Employee/insertPreviewData', excelData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to save data.');
-      }
-
-      alert('Data saved successfully!');
-    } catch (error) {
-      console.error('Error occurred while saving data:', error);
-      alert('Error occurred while saving data. Please try again later.');
+    if (response.status !== 200) {
+      throw new Error('Failed to save data');
     }
-  };
+
+    console.log(response.data); // Log the response from the API
+    alert('Data has been successfully uploaded!');
+  } catch (error) {
+    console.error('Error occurred while saving data:', error);
+    alert('Error occurred while saving data. Please try again later.');
+  }
+};
+
+  // const handleSaveData = async () => {
+  //   console.log('this');
+  //   console.log(excelData);
+  //   try {
+  //     // Make a POST request to the API endpoint for inserting previewed data
+  //     const response = await fetch(variables.API_URL + 'Employee/insertPreviewData', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(excelData), // Convert excelData to JSON string
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error('Failed to save data');
+  //     }
+  
+  //     const data = await response.json();
+  //     console.log(data); // Log the response from the API
+  //     alert('Data has been successfully  uploaded!')
+  //   } catch (error) {
+  //     console.error('Error occurred while saving data:', error);
+  //     alert('Error occurred while saving data. Please try again later.');
+  //   }
+  // };
+
 
   return (
     <div>
@@ -171,132 +205,129 @@ const NewHireUpload = () => {
             <TopNavbar />
             {/* Start of Page Content */}
             <div className="container-fluid">
-              <div className="row justify-content-center">
-                <div className="col-xl-12 col-lg-12">
-                  <div className="card shadow mb-4">
-                    <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                      <ul className="nav nav-tabs">
-                        <li className="nav-item">
-                          <a
-                            className={`nav-link ${activeTab === 'upload' ? 'active' : ''}`}
-                            id="upload-tab"
-                            data-toggle="tab"
-                            href="#uploadForm"
-                            role="tab"
-                            aria-controls="uploadForm"
-                            aria-selected={activeTab === 'upload'}
-                          >
-                            Upload
-                          </a>
-                        </li>
-                        <li className="nav-item">
-                          <a
-                            className={`nav-link ${activeTab === 'preview' ? 'active' : ''}`}
-                            id="reports-tab"
-                            data-toggle="tab"
-                            href="#newHireReports"
-                            role="tab"
-                            aria-controls="newHireReports"
-                            aria-selected={activeTab === 'preview'}
-                          >
-                            Preview
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="card-body">
-                      <div className="tab-content">
-                        <div
-                          className={`tab-pane fade ${activeTab === 'upload' ? 'show active' : ''}`}
-                          id="uploadForm"
-                          role="tabpanel"
-                          aria-labelledby="upload-tab"
+            <div className="row justify-content-center">
+              <div className="col-xl-12 col-lg-12">
+                <div className="card shadow mb-4">
+                  <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <ul className="nav nav-tabs">
+                      <li className="nav-item">
+                        <a
+                          className={`nav-link ${activeTab === 'upload' ? 'active' : ''}`}
+                          id="upload-tab"
+                          data-toggle="tab"
+                          href="#uploadForm"
+                          role="tab"
+                          aria-controls="uploadForm"
+                          aria-selected={activeTab === 'upload'}
                         >
-                          <div className="card-body">
-                            <div className="d-flex justify-content-center">
-                              <form className="user" encType="multipart/form-data">
-                                <div className="form-group">
-                                  <input
-                                    type="file"
-                                    className="form-control-file"
-                                    aria-describedby="fileHelp"
-                                    onChange={handleFileChange}
-                                  />
-                                  <small id="fileHelp" className="form-text text-muted">
-                                    Choose a file to upload.
-                                  </small>
-                                </div>
-                                <div className="text-center">
-                                  <button
-                                    type="submit"
-                                    onClick={handleSubmit}
-                                    className="btn btn-primary btn-user btn-block col-md-6"
-                                  >
-                                    Upload File
-                                  </button>
-                                </div>
-                              </form>
-                            </div>
+                          Upload
+                        </a>
+                      </li>
+                      <li className="nav-item">
+                        <a
+                          className={`nav-link ${activeTab === 'preview' ? 'active' : ''}`}
+                          id="reports-tab"
+                          data-toggle="tab"
+                          href="#newHireReports"
+                          role="tab"
+                          aria-controls="newHireReports"
+                          aria-selected={activeTab === 'preview'}
+                        >
+                          Preview
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="card-body">
+                    <div className="tab-content">
+                      <div
+                        className={`tab-pane fade ${activeTab === 'upload' ? 'show active' : ''}`}
+                        id="uploadForm"
+                        role="tabpanel"
+                        aria-labelledby="upload-tab"
+                      >
+                        <div className="card-body">
+                          <div className="d-flex justify-content-center">
+                            <form className="user" encType="multipart/form-data">
+                              <div className="form-group">
+                                <input
+                                  type="file"
+                                  className="form-control-file"
+                                  aria-describedby="fileHelp"
+                                  onChange={handleFileChange}
+                                />
+                                <small id="fileHelp" className="form-text text-muted">
+                                  Choose a file to upload.
+                                </small>
+                              </div>
+                              <div className="text-center">
+                                <button
+                                  type="submit"
+                                  onClick={handleSubmit}
+                                  className="btn btn-primary btn-user btn-block col-md-6"
+                                >
+                                  Upload File
+                                </button>
+                              </div>
+                            </form>
                           </div>
                         </div>
-                        <div
-                          className={`tab-pane fade ${activeTab === 'preview' ? 'show active' : ''}`}
-                          id="newHireReports"
-                          role="tabpanel"
-                          aria-labelledby="reports-tab"
-                        >
-                          <div className="card-body">
-                            <div className="table-responsive">
-                              {showPreview && excelData.length > 0 && (
-                                <div>
-                                  <h5 className="mb-3 font-weight-bold">Preview of the Uploaded Data</h5>
-                                  <table className="table table-bordered table-hover">
-                                    <thead>
-                                      <tr>
-                                        <th>ACTION</th>
-                                        {Object.keys(excelData[0]).map((header) => (
-                                          <th key={header}>{header}</th>
+                      </div>
+                      <div
+                        className={`tab-pane fade ${activeTab === 'preview' ? 'show active' : ''}`}
+                        id="newHireReports"
+                        role="tabpanel"
+                        aria-labelledby="reports-tab"
+                      >
+                        <div className="card-body">
+                          <div className="table-responsive">
+                            {showPreview && excelData.length > 0 ? (
+                              <div>
+                                <h5 className="mb-3 font-weight-bold">Preview of the Uploaded Data</h5>
+                                <table className="table table-bordered table-hover">
+                                  {/* Table Headers */}
+                                  <thead>
+                                    <tr>
+                                      <th>ACTION</th>
+                                      {Object.keys(excelData[0]).map((header) => (
+                                        <th key={header}>{header}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  {/* Table Body */}
+                                  <tbody>
+                                    {excelData.map((row, index) => (
+                                      <tr key={index}>
+                                        <td>
+                                          <button className="update-button btn btn-xs" onClick={() => handleEditClick(row)}>
+                                            <i className="fas fa-pencil-alt"></i>
+                                          </button>
+                                        </td>
+                                        {/* Table Data */}
+                                        {Object.keys(row).map((key) => (
+                                          <td key={key}>
+                                            {/* Convert birthdate if necessary */}
+                                            {key.toLowerCase().replace(/\s/g, '').includes('birthdate') ? 
+                                              convertExcelDateToDate(row[key]) : 
+                                              row[key]
+                                            }
+                                          </td>
                                         ))}
                                       </tr>
-                                    </thead>
-                                    <tbody>
-                                      {excelData.map((row, index) => (
-                                        <tr key={index}>
-                                          <td>
-                                            <button
-                                              className="update-button btn btn-xs"
-                                              onClick={() => handleEditClick(row)}
-                                            >
-                                              <i className="fas fa-pencil-alt"></i>
-                                            </button>
-                                          </td>
-                                          {/* {Object.keys(row).map((key) => (
-                                            <td key={key}>
-                                              {key.toLowerCase().includes('birthdate') ? convertExcelDateToDate(row[key]) : row[key]} */}
-                                               {Object.keys(row).map((key) => (
-                                            <td key={key}>
-                                              {key.toLowerCase().replace(/\s/g, '').includes('birthdate') ? 
-                                                convertExcelDateToDate(row[key]) : 
-                                                row[key]
-                                              }
-
-                                            </td>
-                                          ))}
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                  <div>
-                                  <div className="text-center mt-3">
-                                    <button className="btn btn-success mr-2" onClick={handleSaveData}>
-                                      Submit Data
-                                    </button>
-                                  </div>
-                                  </div>
-                                  <br/>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                {/* Submit Data Button */}
+                                <div className="text-center mt-3">
+                                  <button className="btn btn-success mr-2" onClick={handleSaveData}>
+                                    Submit Data
+                                  </button>
                                 </div>
-                              )}
-                            </div>
+                              </div>
+                            ) : (
+                              // Render message when no uploaded data
+                              <div className="text-center">Upload new file to preview data</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -304,6 +335,7 @@ const NewHireUpload = () => {
                   </div>
                 </div>
               </div>
+            </div>
             </div>
             {/* /.container-fluid */}
           </div>
@@ -333,7 +365,7 @@ const NewHireUpload = () => {
                       <label>{key}</label>
                       <input
                         type="text"
-                        className={`form-control auto-width-input`} // Apply CSS class here
+                        className={`form-control auto-width-input`} 
                         name={key}
                         value={editedData[key] || ''}
                         onChange={handleInputChange}

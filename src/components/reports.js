@@ -4,9 +4,16 @@ import TopNavbar from './topnavbar';
 import Footer from './footer';
 import { variables } from '../variables';
 import { useNavigate } from "react-router-dom";
+import { Modal, Button } from 'react-bootstrap';
+import axios from 'axios';
 
 const Reports = () => {
     const navigate = useNavigate();
+    const [showModal, setShowModal] = useState(false);
+    const [excelFile, setExcelFile] = useState(null);
+
+    const handleModalClose = () => setShowModal(false);
+    const handleModalShow = () => setShowModal(true);
 
     const handleUpdate = (employeeId) => {
         // Redirect to the update page with employee ID as a parameter
@@ -43,6 +50,36 @@ const Reports = () => {
         fetchData();
     }, []); // Empty dependency array to run only once when the component mounts
 
+    const handleFileChange = (e) => {
+        setExcelFile(e.target.files[0]);
+      };
+    
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        if (!excelFile) {
+          alert('No File Selected');
+          return;
+        }
+    
+        try {
+          const formData = new FormData();
+          formData.append('excelFile', excelFile);
+    
+          const response = await axios.post(variables.API_URL + 'Employee', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+    
+          console.log('File uploaded successfully:', response.data);
+          // You can add additional logic here, such as closing the modal or updating the UI
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          // Handle error, show error message, etc.
+        }
+      };
+
     // const handleSearchChange = (event) => {
     //     const { value } = event.target;
     //     setSearchQuery(value);
@@ -69,6 +106,50 @@ const Reports = () => {
                         {/* Topbar */}
                         <TopNavbar />
                         {/* Start of Page Content */}
+                        <div>
+                            <button className="add-button btn btn-xs btn-primary" onClick={handleModalShow}>
+                                <i className="fas fa-plus"></i> Add New Record
+                            </button>
+                        </div>
+                        <Modal show={showModal} onHide={handleModalClose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Record</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="card-body">
+            <div className="d-flex justify-content-center">
+              <form className="user" encType="multipart/form-data">
+                <div className="form-group">
+                  <input
+                    type="file"
+                    className="form-control-file"
+                    aria-describedby="fileHelp"
+                    onChange={handleFileChange}
+                  />
+                  <small id="fileHelp" className="form-text text-muted">
+                    Choose a file to upload.
+                  </small>
+                </div>
+                <div className="text-center">
+                  <button
+                    type="submit"
+                    onClick={handleSubmit}
+                    className="btn btn-primary btn-user btn-block col-md-6"
+                  >
+                    Upload File
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+                        <br/>
                         <div className="container-fluid">
                             <div className="row justify-content-center">
                                 <div className="col-xl-12 col-lg-12">
@@ -181,6 +262,5 @@ const Reports = () => {
     );
 };
 
-export default Reports;
 export default Reports;
 

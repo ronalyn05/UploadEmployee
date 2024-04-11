@@ -10,6 +10,7 @@ import { variables } from '../variables';
    
     const { employeeId } = useParams();
     const [employeeData, setEmployeeData] = useState({
+      Name: '',
       LastName: '',
       FirstName: '',
       MiddleName: '',
@@ -18,7 +19,7 @@ import { variables } from '../variables';
       Age: '',
       BirthMonth: '',
       AgeBracket: '',
-      Aender: '',
+      Gender: '',
       MaritalStatus: '',
       SSS: '',
       PHIC: '',
@@ -45,8 +46,9 @@ import { variables } from '../variables';
       };
   
       fetchEmployeeData();
-    }, [employeeId]);
+    }, [employeeId]); // Depend on employeeId to refetch data when it changes
   
+   
     const handleInputChange = (e) => {
       const { name, value } = e.target;
       setEmployeeData({
@@ -263,12 +265,12 @@ import { variables } from '../variables';
                                               <input type="text" className="form-control" id="HRANID" name="HRANID" value={employeeData.HRANID} onChange={handleInputChange} />     
                                               </div>
                                             </div>
-                                            <div className="col-md-4">
+                                            {/* <div className="col-md-4">
                                               <div className="form-group">
                                               <label htmlFor="contactNumber">Contact Number</label>
                                               <input type="text" className="form-control" id="contactNumber" name="contactNumber" value={employeeData.ContactNumber} onChange={handleInputChange} />
                                               </div>
-                                            </div>
+                                            </div> */}
                                 </div>
                                 <button type="submit" className="btn btn-primary d-block mx-auto">Save Changes</button>
                             </form>
