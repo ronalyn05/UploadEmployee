@@ -38,6 +38,7 @@ function LoginPage() {
                 // Store user's name in session storage
                 sessionStorage.setItem('firstName', data.FirstName);
                 sessionStorage.setItem('lastName', data.LastName);
+                sessionStorage.setItem('userName', data.UserName);
                 // Redirect user to the dashboard
                // history.push("/dashboard");
                 navigate('/dashboard');

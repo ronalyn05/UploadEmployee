@@ -36,6 +36,17 @@
     transform: rotate(360deg);
   }
 } */
+/* WELCOME MESSAGE */
+.welcome-message {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.welcome-message span {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333; 
+}
 
 .sidebar-brand {
   display: flex;
@@ -278,3 +289,9 @@
   margin: auto;
   padding-bottom: 25px;
 }
+/* background image */
+/* .content-container {
+  background-image: url('../public/img/bg-image.jpg');
+  background-size: cover;
+  background-position: center;
+} */
